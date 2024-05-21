@@ -49,8 +49,6 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
-# env file
-.env
 
 # log folder
 logs/
