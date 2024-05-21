@@ -4,14 +4,13 @@
 
 ### Common
 
-- Copy `.env.sample` to `.env` and setup required values
-- Create following folders into `LOCAL_DATA_PATH` specified in `.env`
+- Create following folders into `LOCAL_DATA_PATH` you specify in `.env`
     - `s1-pre`
     - `s1-post`
     - `s2-pre`
     - `s2-post`
 - Place Sentinel-1 and Sentinel-2 zipped products  into the appropriate folder
-    e.g 
+    e.g.
     - `S1A_IW_GRDH_1SDV_20210804T062638_20210804T062703_039076_049C51_D70E.zip` -> `s1-pre`
     - `S1A_IW_GRDH_1SDV_20210829T181128_20210829T181153_039448_04A911_FED5.zip` -> `s1-post`
     - `S2A_MSIL2A_20210809T110621_N0301_R137_T30TUK_20210809T143014.zip` -> `s2-pre`
