@@ -18,11 +18,18 @@ def get_zip_filename(folder_path):
     else:
         raise ValueError(f"Expected exactly one .zip file in {folder_path}, but found {len(zip_files)}")
 
+def get_tif_filename(folder_path):
+    # Use glob to find all .tif files in the specified folder
+    tif_files = glob.glob(os.path.join(folder_path, "*.tif"))
+    
+    # Check if there is exactly one .tif file
+    if len(tif_files) == 1:
+        return os.path.basename(tif_files[0])
+    else:
+        raise ValueError(f"Expected exactly one .tif file in {folder_path}, but found {len(tif_files)}")
+
 
 # ---GENERAL SETTINGS---
-# from data.products import ITALY_PRODUCTS, CORINE_ITALY_PRODUCT
-# PRODUCTS = ITALY_PRODUCTS
-# CORINE = CORINE_ITALY_PRODUCT
 SUBPROCESS=False
 GRAPH_ID = 's1_s2_fire_detection'
 BASE_OUT_FOLDER = '/data'
@@ -39,6 +46,9 @@ PRODUCTS = {
     's2-post': {
         'file': get_zip_filename(os.path.join(BASE_OUT_FOLDER, 's2-post')),
     },
+}
+CORINE = {
+    'file': get_tif_filename(os.path.join(BASE_OUT_FOLDER, 'corine')),
 }
 
 
@@ -228,16 +238,6 @@ with DAG(
 ) as dag:
 
 
-    # download_op0 = download_aws(
-    #         PRODUCTS[Download0_OUT]['bucket'], 
-    #         PRODUCTS[Download0_OUT]['prefix'], 
-    #         PRODUCTS[Download0_OUT]['file'], 
-    #         BASE_OUT_FOLDER + '/' + Download0_OUT, 
-    #         Download0, 
-    #         Download0_QUEUE, 
-    #         Download0_PRIORITY
-    #     )
-
     land_sea_mask_op0 = create_operator(
         'Land-Sea-Mask',
         LandSeaMask0,
@@ -281,7 +281,6 @@ with DAG(
     calibration_op0 = create_operator(
         'Calibration',
         CalibrationSigma0,
-        # BASE_OUT_FOLDER + "/" + RemoveBorderNoise0_OUT,
         BASE_OUT_FOLDER + "/" + ThermalNoiseRemoval0_OUT,
         BASE_OUT_FOLDER + "/" + CalibrationSigma0_OUT,
         CalibrationSigma0_QUEUE,
@@ -339,19 +338,8 @@ AXIS["Geodetic latitude", NORTH]]'''
         }
     )
 
-    # download_op0 >> land_sea_mask_op0 >> apply_orbit_file_op0 >> thermal_noise_removal_op0 >> calibration_op0 >> speckle_filter_op0 >> ellipsoid_correction_op0
     land_sea_mask_op0 >> apply_orbit_file_op0 >> thermal_noise_removal_op0 >> calibration_op0 >> speckle_filter_op0 >> ellipsoid_correction_op0
 
-
-    # download_op1 = download_aws(
-    #         PRODUCTS[Download1_OUT]['bucket'], 
-    #         PRODUCTS[Download1_OUT]['prefix'], 
-    #         PRODUCTS[Download1_OUT]['file'], 
-    #         BASE_OUT_FOLDER + '/' + Download1_OUT, 
-    #         Download1, 
-    #         Download1_QUEUE, 
-    #         Download1_PRIORITY
-    #     )
 
     land_sea_mask_op1 = create_operator(
         'Land-Sea-Mask',
@@ -454,7 +442,6 @@ AXIS["Geodetic latitude", NORTH]]'''
         }
     )
 
-    # download_op1 >> land_sea_mask_op1 >> apply_orbit_file_op1 >> thermal_noise_removal_op1 >> calibration_op1 >> speckle_filter_op1 >> ellipsoid_correction_op1
     land_sea_mask_op1 >> apply_orbit_file_op1 >> thermal_noise_removal_op1 >> calibration_op1 >> speckle_filter_op1 >> ellipsoid_correction_op1
 
 
@@ -565,25 +552,6 @@ AXIS["Geodetic latitude", NORTH]]'''
     ##### S2 #####
 
 
-    # download_op2 = download_aws(
-    #     PRODUCTS[Download2_OUT]['bucket'], 
-    #     PRODUCTS[Download2_OUT]['prefix'],
-    #     PRODUCTS[Download2_OUT]['file'],
-    #     BASE_OUT_FOLDER + '/' + Download2_OUT, 
-    #     Download2, 
-    #     Download2_QUEUE, 
-    #     Download2_PRIORITY)
-
-    # download_op3 = download_aws(
-    #     PRODUCTS[Download3_OUT]['bucket'], 
-    #     PRODUCTS[Download3_OUT]['prefix'], 
-    #     PRODUCTS[Download3_OUT]['file'], 
-    #     BASE_OUT_FOLDER + '/' + Download3_OUT, 
-    #     Download3, 
-    #     Download3_QUEUE, 
-    #     Download3_PRIORITY)
-
-
     resample_op0 = create_operator(
         'Resample',
         Resample0,
@@ -642,23 +610,11 @@ AXIS["Geodetic latitude", NORTH]]'''
         subprocess=SUBPROCESS
     )
 
-    # download_op2 >> resample_op0 >> collocate_op2
     resample_op0 >> collocate_op2
-    # download_op3 >> resample_op1 >> collocate_op2
     resample_op1 >> collocate_op2
     collocate_op2 >> dNBR_op0
 
     ##### CORINE #####
-
-    # download_op4 = download_aws(
-    #     CORINE['bucket'], 
-    #     CORINE['prefix'], 
-    #     CORINE['file'], 
-    #     BASE_OUT_FOLDER + '/' + Download4_OUT, 
-    #     Download4, 
-    #     Download4_QUEUE, 
-    #     Download4_PRIORITY
-    # )
 
     collocate_op3 = create_operator(
         'Collocate',
