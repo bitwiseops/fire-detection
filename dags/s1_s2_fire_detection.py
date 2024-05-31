@@ -1,4 +1,6 @@
 from datetime import datetime
+import os
+import glob
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
@@ -6,14 +8,38 @@ from airflow.operators.python import PythonOperator
 from operators.gpf import create_operator
 from operators.raster import delete_noise
 
+def get_zip_filename(folder_path):
+    # Use glob to find all .zip files in the specified folder
+    zip_files = glob.glob(os.path.join(folder_path, "*.zip"))
+    
+    # Check if there is exactly one .zip file
+    if len(zip_files) == 1:
+        return os.path.basename(zip_files[0])
+    else:
+        raise ValueError(f"Expected exactly one .zip file in {folder_path}, but found {len(zip_files)}")
+
 
 # ---GENERAL SETTINGS---
-from data.products import ITALY_PRODUCTS, CORINE_ITALY_PRODUCT
-PRODUCTS = ITALY_PRODUCTS
-CORINE = CORINE_ITALY_PRODUCT
+# from data.products import ITALY_PRODUCTS, CORINE_ITALY_PRODUCT
+# PRODUCTS = ITALY_PRODUCTS
+# CORINE = CORINE_ITALY_PRODUCT
 SUBPROCESS=False
 GRAPH_ID = 's1_s2_fire_detection'
 BASE_OUT_FOLDER = '/data'
+PRODUCTS = {
+    's1-pre': {
+        'file': get_zip_filename(os.path.join(BASE_OUT_FOLDER, 's1-pre')),
+    },
+    's1-post': {
+        'file': get_zip_filename(os.path.join(BASE_OUT_FOLDER, 's1-post')),
+    },
+    's2-pre': {
+        'file': get_zip_filename(os.path.join(BASE_OUT_FOLDER, 's2-pre')),
+    },
+    's2-post': {
+        'file': get_zip_filename(os.path.join(BASE_OUT_FOLDER, 's2-post')),
+    },
+}
 
 
 # ---SCHEDULER SECTION---
