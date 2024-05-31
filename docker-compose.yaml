@@ -158,7 +158,7 @@ services:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
-      - ${VOLUME_DATA_PATH}:${LOCAL_DATA_PATH}
+      - ${LOCAL_DATA_PATH}:/data
 
   airflow-triggerer:
     <<: *airflow-common
