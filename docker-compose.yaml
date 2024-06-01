@@ -38,7 +38,6 @@
 #
 # Feel free to modify this file to suit your needs.
 ---
-version: '3'
 x-airflow-common:
   &airflow-common
   # In order to add custom dependencies or upgrade provider packages you can use your extended image.
@@ -66,10 +65,6 @@ x-airflow-common:
     S3_SECRET_ACCESS_KEY: "${S3_SECRET_ACCESS_KEY:-}"
     LOCAL_DATA_PATH: "${LOCAL_DATA_PATH:-}"
     AIRFLOW__CORE__EXECUTE_TASKS_NEW_PYTHON_INTERPRETER: 'true'
-  volumes:
-    - ./dags:/opt/airflow/dags
-    - ./logs:/opt/airflow/logs
-    - ./plugins:/opt/airflow/plugins
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -119,6 +114,11 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ${LOCAL_DATA_PATH}:/data
 
   airflow-scheduler:
     <<: *airflow-common
@@ -133,6 +133,11 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ${LOCAL_DATA_PATH}:/data
 
   airflow-worker:
     <<: *airflow-common
@@ -173,6 +178,11 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ${LOCAL_DATA_PATH}:/data
 
   airflow-init:
     <<: *airflow-common
@@ -250,6 +260,10 @@ services:
       _PIP_ADDITIONAL_REQUIREMENTS: ''
     user: "0:0"
     volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ${LOCAL_DATA_PATH}:/data
       - .:/sources
 
   airflow-cli:
@@ -264,6 +278,11 @@ services:
       - bash
       - -c
       - airflow
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ${LOCAL_DATA_PATH}:/data
 
   # You can enable flower by adding "--profile flower" option e.g. docker-compose --profile flower up
   # or by explicitly targeted on the command line e.g. docker-compose up flower.

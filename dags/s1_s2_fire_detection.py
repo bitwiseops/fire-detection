@@ -18,38 +18,21 @@ def get_zip_filename(folder_path):
     else:
         raise ValueError(f"Expected exactly one .zip file in {folder_path}, but found {len(zip_files)}")
 
-def get_tif_filename(folder_path):
-    # Use glob to find all .tif files in the specified folder
-    tif_files = glob.glob(os.path.join(folder_path, "*.tif"))
+def get_tiff_filename(folder_path):
+    # Use glob to find all .tiff files in the specified folder
+    tiff_files = glob.glob(os.path.join(folder_path, "*.tiff"))
     
-    # Check if there is exactly one .tif file
-    if len(tif_files) == 1:
-        return os.path.basename(tif_files[0])
+    # Check if there is exactly one .tiff file
+    if len(tiff_files) == 1:
+        return os.path.basename(tiff_files[0])
     else:
-        raise ValueError(f"Expected exactly one .tif file in {folder_path}, but found {len(tif_files)}")
+        raise ValueError(f"Expected exactly one .tiff file in {folder_path}, but found {len(tiff_files)}")
 
 
 # ---GENERAL SETTINGS---
 SUBPROCESS=False
 GRAPH_ID = 's1_s2_fire_detection'
 BASE_OUT_FOLDER = '/data'
-PRODUCTS = {
-    's1-pre': {
-        'file': get_zip_filename(os.path.join(BASE_OUT_FOLDER, 's1-pre')),
-    },
-    's1-post': {
-        'file': get_zip_filename(os.path.join(BASE_OUT_FOLDER, 's1-post')),
-    },
-    's2-pre': {
-        'file': get_zip_filename(os.path.join(BASE_OUT_FOLDER, 's2-pre')),
-    },
-    's2-post': {
-        'file': get_zip_filename(os.path.join(BASE_OUT_FOLDER, 's2-post')),
-    },
-}
-CORINE = {
-    'file': get_tif_filename(os.path.join(BASE_OUT_FOLDER, 'corine')),
-}
 
 
 # ---SCHEDULER SECTION---
@@ -236,12 +219,12 @@ with DAG(
     catchup=False,
     tags=['sentinel-1', 'sentinel-2', 'workflow'],
 ) as dag:
-
-
+    
+    
     land_sea_mask_op0 = create_operator(
         'Land-Sea-Mask',
         LandSeaMask0,
-        BASE_OUT_FOLDER + "/" + Download0_OUT + '/' + PRODUCTS[Download0_OUT]['file'],
+        BASE_OUT_FOLDER + "/" + Download0_OUT + '/' + get_zip_filename(os.path.join(BASE_OUT_FOLDER, Download0_OUT)),
         BASE_OUT_FOLDER + "/" + LandSeaMask0_OUT,
         LandSeaMask0_QUEUE,
         LandSeaMask0_PRIORITY,
@@ -344,7 +327,7 @@ AXIS["Geodetic latitude", NORTH]]'''
     land_sea_mask_op1 = create_operator(
         'Land-Sea-Mask',
         LandSeaMask1,
-        BASE_OUT_FOLDER + "/" + Download1_OUT + '/' + PRODUCTS[Download1_OUT]['file'],
+        BASE_OUT_FOLDER + "/" + Download1_OUT + '/' + get_zip_filename(os.path.join(BASE_OUT_FOLDER, Download1_OUT)),
         BASE_OUT_FOLDER + "/" + LandSeaMask1_OUT,
         LandSeaMask1_QUEUE,
         LandSeaMask1_PRIORITY,
@@ -555,7 +538,7 @@ AXIS["Geodetic latitude", NORTH]]'''
     resample_op0 = create_operator(
         'Resample',
         Resample0,
-        BASE_OUT_FOLDER + '/' + Download2_OUT + '/' + PRODUCTS[Download2_OUT]['file'],
+        BASE_OUT_FOLDER + '/' + Download2_OUT + '/' + get_zip_filename(os.path.join(BASE_OUT_FOLDER, Download2_OUT)),
         BASE_OUT_FOLDER + "/" + Resample0_OUT,
         Resample0_QUEUE,
         Resample0_PRIORITY,
@@ -568,7 +551,7 @@ AXIS["Geodetic latitude", NORTH]]'''
     resample_op1 = create_operator(
         'Resample',
         Resample1,
-        BASE_OUT_FOLDER + '/' + Download3_OUT + '/' + PRODUCTS[Download3_OUT]['file'],
+        BASE_OUT_FOLDER + '/' + Download3_OUT + '/' + get_zip_filename(os.path.join(BASE_OUT_FOLDER, Download3_OUT)),
         BASE_OUT_FOLDER + "/" + Resample1_OUT,
         Resample1_QUEUE,
         Resample1_PRIORITY,
@@ -621,7 +604,7 @@ AXIS["Geodetic latitude", NORTH]]'''
         Collocate3,
         [
             BASE_OUT_FOLDER + "/" + dNBR0_OUT, 
-            BASE_OUT_FOLDER + "/" + Download4_OUT + '/' + CORINE['file']
+            BASE_OUT_FOLDER + "/" + Download4_OUT + '/' + get_tiff_filename(os.path.join(BASE_OUT_FOLDER, Download4_OUT))
         ],
         BASE_OUT_FOLDER + "/" + Collocate3_OUT,
         Collocate3_QUEUE,

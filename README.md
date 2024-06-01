@@ -13,19 +13,21 @@ This project has been tested and run in a Linux Ubuntu environment.
 
 - Create the folder `data` inside your local folder.
 
-- Inside the file `.env`, set the value for LOCAL_DATA_PATH to point to the relative path of the folder `data` you created (e.g. `LOCAL_DATA_PATH=/data`)
+- Inside the file `.env`, set the value for LOCAL_DATA_PATH to point to the path of the folder `data` you created (e.g. `LOCAL_DATA_PATH=./data`)
 
 - Create the following folders inside the folder `data`:
     - `s1-pre`
     - `s1-post`
     - `s2-pre`
     - `s2-post`
+    - `corine`
 
 - Copy into the folders created in the previous step the four input Sentinel images to be processed by the workflow in the form of the zipped products. For example:
     - `S1A_IW_GRDH_1SDV_20210804T062638_20210804T062703_039076_049C51_D70E.zip` inside the folder `s1-pre`
     - `S1A_IW_GRDH_1SDV_20210829T181128_20210829T181153_039448_04A911_FED5.zip` inside the folder `s1-post`
     - `S2A_MSIL2A_20210809T110621_N0301_R137_T30TUK_20210809T143014.zip` inside  the folder `s2-pre`
     - `S2A_MSIL2A_20210819T110621_N0301_R137_T30TUK_20210824T112618.zip` inside the folder  `s2-post`
+    - `U2018_CLC2018_V2020_20u1.tif` inside the folder `corine`
 
 
 ### Step 2

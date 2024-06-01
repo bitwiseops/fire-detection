@@ -52,3 +52,9 @@ docs/_build/
 
 # log folder
 logs/
+
+# data folder
+data/*
+!data/*/
+data/*/*
+!data/*/.gitkeep
