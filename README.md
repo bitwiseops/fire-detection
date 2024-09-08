@@ -1,4 +1,4 @@
-This repository contains the source code enclosed to the research article titled "A novel cloud-oriented procedure based on SAR and Multispectral data to detect burnt areas". The following instructions will help you to download the code, setup your environment and execute the workflow.
+This repository contains the source code enclosed to the research article titled "Design and evaluation of a cloud-oriented procedure based on SAR and Multispectral data to detect burnt areas". The following instructions will help you to download the code, setup your environment and execute the workflow.
 
 
 ## Code download
