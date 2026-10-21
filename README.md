@@ -1,47 +1,46 @@
-This repository contains the source code enclosed to the research article titled "Design and evaluation of a cloud-oriented procedure based on SAR and Multispectral data to detect burnt areas". The following instructions will help you to download the code, setup your environment and execute the workflow.
+# Sentinel-1 / Sentinel-2 burnt-area detection
 
+Cloud-oriented workflow that detects burnt areas by fusing **SAR (Sentinel-1)** and **multispectral (Sentinel-2)** imagery, orchestrated with **Apache Airflow** and **ESA SNAP**, and packaged with Docker.
 
-## Code download
+This repository contains the source code accompanying the research article *"Design and evaluation of a cloud-oriented procedure based on SAR and Multispectral data to detect burnt areas"*.
 
-Clone the content of this reporitory in a local folder (e.g. using `git clone`)
+## How it works
 
-## Environment setup
+The `s1_s2_fire_detection` DAG (see [`dags/`](dags/)) takes four pre-/post-fire Sentinel products plus the CORINE land-cover map and runs the whole chain unattended:
 
-This project has been tested and run in a Linux Ubuntu environment.
+1. **Sentinel-1 (SAR)**: land-sea mask, orbit file, thermal-noise removal, calibration, speckle filtering and terrain correction on both dates, then pre/post **difference and ratio** images.
+2. **Sentinel-2 (optical)**: resampling of both dates and computation of **dNBR**.
+3. **Fusion**: the SAR and optical layers are collocated, merged, and cleaned of isolated noise pixels.
 
-### Step 1
+## Quick start
 
-- Create the folder `data` inside your local folder.
+Requirements: Docker Desktop (the workflow was tested on Ubuntu).
 
-- Inside the file `.env`, set the value for LOCAL_DATA_PATH to point to the path of the folder `data` you created (e.g. `LOCAL_DATA_PATH=./data`)
+```bash
+git clone https://github.com/bitwiseops/fire-detection.git && cd fire-detection
+cp .env.example .env          # set LOCAL_DATA_PATH if you use a different folder
+```
 
-- Create the following folders inside the folder `data`:
-    - `s1-pre`
-    - `s1-post`
-    - `s2-pre`
-    - `s2-post`
-    - `corine`
+The `data/` sub-folders already exist; copy one input product into each (zipped, as downloaded):
 
-- Copy into the folders created in the previous step the four input Sentinel images to be processed by the workflow in the form of the zipped products. For example:
-    - `S1A_IW_GRDH_1SDV_20210804T062638_20210804T062703_039076_049C51_D70E.zip` inside the folder `s1-pre`
-    - `S1A_IW_GRDH_1SDV_20210829T181128_20210829T181153_039448_04A911_FED5.zip` inside the folder `s1-post`
-    - `S2A_MSIL2A_20210809T110621_N0301_R137_T30TUK_20210809T143014.zip` inside  the folder `s2-pre`
-    - `S2A_MSIL2A_20210819T110621_N0301_R137_T30TUK_20210824T112618.zip` inside the folder  `s2-post`
-    - `U2018_CLC2018_V2020_20u1.tif` inside the folder `corine`
+| Folder | Input |
+|---|---|
+| `data/s1-pre`, `data/s1-post` | Sentinel-1 GRDH scene before / after the fire (e.g. `S1A_IW_GRDH_1SDV_20210804T…zip`) |
+| `data/s2-pre`, `data/s2-post` | Sentinel-2 L2A scene before / after the fire (e.g. `S2A_MSIL2A_20210809T…zip`) |
+| `data/corine` | CORINE Land Cover raster (`U2018_CLC2018_V2020_20u1.tif`) |
 
+Then start the stack and run the workflow:
 
-### Step 2
+```bash
+docker compose up -d --build --force-recreate
+```
 
+Open <http://localhost:8080> (credentials `airflow` / `airflow`), trigger the **`s1_s2_fire_detection`** DAG and collect the produced rasters when it finishes.
 
-##### Automatic setup using Docker 
+## Stack
 
-- Install Docker Desktop
+Python · Apache Airflow · ESA SNAP · Docker Compose · Sentinel-1 / Sentinel-2 · CORINE Land Cover
 
-- Run the following command to create a Docker container, which will download and install all dependencies: `sudo docker compose up -d --build --force-recreate`
+## License
 
-
-## Workflow execution
-
-- Open the following url in a web browser 'http://localhost:8080' (use the following credentials "airflow:airflow" or "admin:airflow")
-
-- Run the 's1_s2_fire_detection' DAG, wait for completion and then access the produced results
+MIT, see [LICENSE](LICENSE).
